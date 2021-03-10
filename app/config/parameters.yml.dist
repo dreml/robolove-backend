@@ -1,0 +1,26 @@
+# This file is a "template" of what your parameters.yml file should look like
+# Set parameters here that may be different on each deployment target of the app, e.g. development, staging, production.
+# https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
+parameters:
+    database_host: db
+    database_port: null
+    database_name: robolove
+    database_user: db_user
+    database_password: db_password
+
+    secret: b3044c15990eca12904d366882be947ccd83dbfd
+
+    yabt.url: 'http://yabt-test'
+
+    crossbar.topic_prefix: 'com.htc_robolove_app.'
+
+    battle.cooldown: 180
+    battle.leaver_check_time: 60
+
+    crossbar_host: crossbar
+    crossbar_port: 8080
+    crossbar_key: null
+    crossbar_secret: null
+
+    cache_host: memcached
+    cache_ttl: 3600

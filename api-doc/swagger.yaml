@@ -1,0 +1,239 @@
+swagger: '2.0'
+info:
+  description: "# Crossbar # \n
+      ## Топики ## \n
+      ### Чат ### \n
+      `com.htc_robolove_app.chat` Обмен сообщениями между игроками в лобби, а также для публикации общих сообщений \n
+      ### Лобби ### \n
+      `com.htc_robolove_app.lobby` Публикация информации о начале матча, списке участвующих игроков и названии топика матча \n
+      ### Бой ### \n
+      `com.htc_robolove_app.match_[player1Code]_[player2Code]_[timeCreated]` Публикация информации о раундах и результате матча \n
+      ## Типы сообщений ## \n
+      * `lobbyMessage` обычное сообщение чата \n
+      * `broadcastMessage` платное сообщение чата \n
+      * `beginningOfMatch` начало матча \n
+      * `skillChange` изменение скилла \n * `roundResult` результаты раунда"
+
+  version: 1.0.0
+  title: Robolove
+host: petstore.swagger.io
+basePath: /
+paths:
+  /authorize:
+    get:
+      description: Метод для авторизации пользователя
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        401:
+          description: Not authorized
+          schema:
+            $ref: '#/definitions/NotAuthorized'
+  /saveProfile:
+    post:
+      description: Метод для сохранения информации о роботе и нике
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SaveProfileRequest'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequest'
+        401:
+          description: Not authorized
+          schema:
+            $ref: '#/definitions/NotAuthorized'
+  /sendMessage:
+    post:
+      description: Метод для отправления сообщений в общий или VIP чаты
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SendMessageRequest'
+      responses:
+        200:
+          description: OK
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequest'
+        401:
+          description: Not authorized
+          schema:
+            $ref: '#/definitions/NotAuthorized'
+  /readyToFight:
+    post:
+      description: Метод для перевода пользователя в состояние поиска боя
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+        401:
+          description: Not authorized
+          schema:
+            $ref: '#/definitions/NotAuthorized'
+  /changeSkill:
+    post:
+      description: Метод для изменения значения выбранного скила
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ChangeSkillRequest'
+      responses:
+        200:
+          description: OK
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequest'
+        401:
+          description: Not authorized
+          schema:
+            $ref: '#/definitions/NotAuthorized'
+  /beginRound:
+    post:
+      description: Метод для сохранения информации о выбранных скилах и подсчета результатов раунда
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/BeginRoundRequest'
+      responses:
+        200:
+          description: OK
+        400:
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequest'
+        401:
+          description: Not authorized
+          schema:
+            $ref: '#/definitions/NotAuthorized'
+  /getRoundResult:
+    get:
+      description: При долгом ожидании результатов матча, можно сделать запрос в этот метод, если после начала матча прошло определенное кол-во времени и соперник не выбрал скилы в этом раунде, то победа присуждается текущему игроку
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          required: true
+      responses:
+        200:
+          description: OK
+        401:
+          description: Not authorized
+          schema:
+            $ref: '#/definitions/NotAuthorized'
+
+definitions:
+  User:
+    type: object
+    properties:
+      token:
+        type: string
+      name:
+        type: string
+      robotModel:
+        type: integer
+      robotColor:
+        type: string
+      nickname:
+        type: string
+      currentPoints:
+        type: integer
+      ratingPosition:
+        type: integer
+      vip:
+        type: boolean
+  NotAuthorized:
+    type: object
+  InvalidRequest:
+    type: array
+    items:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+  SaveProfileRequest:
+    type: object
+    properties:
+      nickname:
+        type: string
+      robotModel:
+        type: integer
+      robotColor:
+        type: string
+  SendMessageRequest:
+    type: object
+    properties:
+      message:
+        type: string
+      messageType:
+        type: string
+        enum:
+          - lobbyMessage
+          - broadcastMessage
+  ChangeSkillRequest:
+    type: object
+    properties:
+      skillId:
+        type: integer
+      skillValue:
+        type: string
+        enum:
+          - rock
+          - paper
+          - scissors
+          - unselected
+  BeginRoundRequest:
+    type: object
+    properties:
+      roundNumber:
+        type: integer
+      skills:
+        description: Необходима информация о 3х скилах
+        type: array
+        items:
+          $ref: '#/definitions/ChangeSkillRequest'
